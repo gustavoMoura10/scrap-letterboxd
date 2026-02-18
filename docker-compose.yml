@@ -1,0 +1,33 @@
+version: '3.8'
+
+services:
+  # Serviço do RabbitMQ
+  rabbitmq:
+    image: rabbitmq:3-management-alpine
+    container_name: scrap-letterboxd_queue
+    ports:
+      - "5672:5672"   # Porta de comunicação (AMQP)
+      - "15672:15672" # Porta do Painel de Controle (Admin)
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
+    networks:
+      - scraper_network
+
+  # Sua aplicação NestJS
+  nest-app:
+    build: .
+    container_name: scrap-letterboxd
+    ports:
+      - "3000:3000"
+    depends_on:
+      - rabbitmq
+    environment:
+      # IMPORTANTE: No Docker, o host do RabbitMQ é o nome do serviço (rabbitmq)
+      RABBITMQ_URL: amqp://guest:guest@rabbitmq:5672
+    networks:
+      - scraper_network
+
+networks:
+  scraper_network:
+    driver: bridge

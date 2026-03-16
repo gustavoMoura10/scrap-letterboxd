@@ -1,9 +1,10 @@
 interface Movie {
-    title: string;
-    year: string;
+    title: string | null;
+    year: string | null;
+    originalTitle: string | null;
     countries: string[] | null;
-    genres: string[];
-    link: string;
+    genres: string[] | null;
+    link: string | null;
     languages: string[] | null;
 }
 export type { Movie }

@@ -37,8 +37,8 @@ export class ScrapperService {
         const movies: Movie[] = [];
         let totalNumeric;
         let page = 1;
-        let url = `https://letterboxd.com/films/ajax/country/${countrySlug}/year/${year}/page/${page}/`;
         while (haveNext) {
+            let url = `https://letterboxd.com/films/ajax/country/${countrySlug}/year/${year}/page/${page}/`;
             this.logger.log(`Iniciando scraping na URL: ${url}`);
 
             let { result, status } = await this.httpClient.getPage(`${url}/?esiAllowFilters=true`);
@@ -63,9 +63,13 @@ export class ScrapperService {
                 const link = $titlesPage(element).attr('data-item-link') || '';
                 const title = $titlesPage(element).attr('data-item-name') || '';
                 if (link) {
-                    const info = await this.httpClient.getPage(`https://letterboxd.com${link}/`);
+                    const info = await this.httpClient.getPage(`https://letterboxd.com${link}`);
+
                     if (info.result) {
                         let $movieInfo = cheerio.load(info.result);
+                        const ldJson = $movieInfo('script[type="application/ld+json"]').html();
+                        const data = JSON.parse(`${ldJson}`.replace(/\/\*[\s\S]*?\*\//g, '')); // remove comentários JS
+                        const ratingValue = data.aggregateRating?.ratingValue;
                         const allLanguages: string[] = [];
                         const allGenres: string[] = [];
                         const allcountries: string[] = [];
@@ -85,15 +89,16 @@ export class ScrapperService {
                             link: `https://letterboxd.com${link}`,
                             languages: allLanguages.length > 0 ? allLanguages : null,
                             countries: allcountries.length > 0 ? allcountries : null,
-                            originalTitle: null,
+                            ratingValue,
                         });
                     }
                 }
             }
             page++;
+            this.logger.log(`Página ${page - 1} processada para o job ${jobId}. Total de filmes coletados até agora: ${movies.length}`);
             haveNext = $titlesPage('a.next').length > 0;
         }
-
+        this.logger.log(`Job ${jobId} concluído. Total de filmes coletados: ${movies.length}`);
         return {
             success: true,
             count: movies.length,

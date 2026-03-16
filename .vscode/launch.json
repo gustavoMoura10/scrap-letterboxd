@@ -1,0 +1,57 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "NestJS: Iniciar App (Debug)",
+            "runtimeExecutable": "npm",
+            "runtimeArgs": [
+                "run",
+                "start:debug"
+            ],
+            "console": "integratedTerminal",
+            "restart": true,
+            "protocol": "inspector",
+            "port": 9229,
+            "skipFiles": [
+                "<node_internals>/**"
+            ]
+        },
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "NestJS: Debugar Teste Atual",
+            "runtimeExecutable": "node",
+            "runtimeArgs": [
+                "${workspaceFolder}/node_modules/jest/bin/jest.js",
+                "--runInBand",
+                "${file}",
+                "--config",
+                "package.json"
+            ],
+            "console": "integratedTerminal",
+            "internalConsoleOptions": "neverOpen",
+            "sourceMaps": true,
+            "skipFiles": [
+                "<node_internals>/**"
+            ]
+        },
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "NestJS: Debugar Todos os Testes",
+            "runtimeExecutable": "npm",
+            "runtimeArgs": [
+                "run",
+                "test",
+                "--",
+                "--runInBand"
+            ],
+            "console": "integratedTerminal",
+            "skipFiles": [
+                "<node_internals>/**"
+            ]
+        }
+    ]
+}
